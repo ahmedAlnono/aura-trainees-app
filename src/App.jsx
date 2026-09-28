@@ -174,7 +174,7 @@ export default function App() {
       <header className="hero">
         <img
           className="hero-logo"
-          src="/encodec-logo.png"
+          src="encodec-logo.png"
           alt="Encodec — Tailored Engineering"
         />
 
@@ -286,7 +286,7 @@ export default function App() {
 
       <footer className="app-footer">
         <img
-          src="/tailored-engineering.png"
+          src="tailored-engineering.png"
           alt="Tailored Engineering"
           className="footer-wordmark"
         />
