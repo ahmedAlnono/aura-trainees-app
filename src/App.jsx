@@ -3,12 +3,67 @@ import { loadTrainees, saveTrainees, emptyTrainee, STATUSES } from "./data.js";
 import TraineeCard from "./components/TraineeCard.jsx";
 import TraineeForm from "./components/TraineeForm.jsx";
 
+/* Random-ish team photo used for the hero (same mood as the reference). */
+const HERO_PHOTO =
+  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80";
+
+/* ------------------------------------------------------------------ *
+ * Stat tile watermarks
+ * ------------------------------------------------------------------ */
+function StatIcon({ name }) {
+  const common = {
+    viewBox: "0 0 64 64",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 3,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    className: "stat-icon",
+    "aria-hidden": "true",
+  };
+
+  switch (name) {
+    case "trainees":
+      return (
+        <svg {...common}>
+          <circle cx="24" cy="22" r="10" />
+          <path d="M6 54c0-9.4 8-16 18-16s18 6.6 18 16" />
+          <circle cx="46" cy="24" r="7" />
+          <path d="M38 54c0-8 5-13 12-13s12 5 12 13" />
+        </svg>
+      );
+    case "months":
+      return (
+        <svg {...common}>
+          <rect x="8" y="12" width="48" height="44" rx="6" />
+          <path d="M8 24h48M20 8v8M44 8v8" />
+          <path d="M18 34h6M30 34h6M42 34h6M18 44h6M30 44h6M42 44h6" />
+        </svg>
+      );
+    case "remote":
+      return (
+        <svg {...common}>
+          <circle cx="32" cy="32" r="22" />
+          <path d="M10 32h44" />
+          <path d="M32 10c6 6 9 13.7 9 22s-3 16-9 22c-6-6-9-13.7-9-22s3-16 9-22z" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <path d="M6 18l17-6 18 6 17-6v34l-17 6-18-6-17 6z" />
+          <path d="M23 12v34M41 18v34" />
+        </svg>
+      );
+  }
+}
+
 export default function App() {
   const [trainees, setTrainees] = useState(loadTrainees);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState(null); // null = add mode
+  const [editing, setEditing] = useState(null);
 
   useEffect(() => saveTrainees(trainees), [trainees]);
 
@@ -46,6 +101,20 @@ export default function App() {
     return set.size || "—";
   }, [trainees]);
 
+  const stats = useMemo(
+    () => [
+      { icon: "trainees", value: trainees.length || "—", label: "Trainees" },
+      { icon: "months", value: 6, label: "Months" },
+      { icon: "remote", value: "100%", label: "Remote format" },
+      {
+        icon: "countries",
+        value: countryCount,
+        label: "Countries represented",
+      },
+    ],
+    [trainees.length, countryCount],
+  );
+
   function handleSave(data) {
     if (editing) {
       setTrainees((prev) =>
@@ -74,16 +143,6 @@ export default function App() {
     setFormOpen(true);
   }
 
-  /**
-   * Export the whole page to PDF.
-   *
-   * Uses the browser's native print pipeline ("Save as PDF"), which is the
-   * only client-side way to get a PDF that:
-   *   - keeps the exact same styles (same DOM, same stylesheet)
-   *   - keeps real, selectable text
-   *   - keeps <a href> links clickable (Chrome / Edge / Firefox all preserve
-   *     link annotations when printing to PDF)
-   */
   function exportPdf() {
     const previousTitle = document.title;
     document.title = `AURA-Remote-Work-Trainees-${new Date()
@@ -100,25 +159,25 @@ export default function App() {
 
     window.addEventListener("afterprint", restore);
     window.print();
-    // Fallback for browsers that don't fire `afterprint`.
     setTimeout(restore, 1500);
   }
 
   return (
     <div className="app">
-      {/* ---- Print / PDF rules (kept inline so nothing else has to change) ---- */}
+      {/* ================= PRINT / PDF RULES ================= */}
       <style>{`
         @media print {
           @page {
             size: A4;
-            margin: 12mm 10mm;
+            margin: 11mm 11mm 12mm;
           }
 
           html, body {
-            background: #fff !important;
+            background: #faf6ed !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
-          /* Force backgrounds / brand colors to be printed */
           *,
           *::before,
           *::after {
@@ -126,68 +185,112 @@ export default function App() {
             print-color-adjust: exact !important;
           }
 
-          /* UI-only chrome that must not appear in the PDF */
+          /* Hide UI-only chrome */
           .no-print,
           .toolbar,
-          .grid button,
+          .card-actions,
+          .modal-backdrop,
           .empty button,
-          .app button:not(.print-keep) {
+          .app button {
             display: none !important;
           }
 
-          /* Remove screen-only spacing so the printed page is edge-to-edge */
           .app {
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
           }
 
-          /* Keep blocks intact across page breaks */
-          .hero,
-          .hero-stats,
-          .app-footer {
-            break-inside: avoid;
-            page-break-inside: avoid;
+          /* Page 1 = hero + about + stats; page 2+ = roster */
+          .page-one {
+            break-after: page;
+            page-break-after: always;
           }
 
+          .hero,
+          .hero-left,
+          .hero-card,
+          .hero-right,
+          .brand-badge,
+          .hero-photo,
+          .hero-lede,
+          .about-section,
+          .stats-section,
+          .stat-tile,
+          .app-footer,
           .grid > * {
             break-inside: avoid;
             page-break-inside: avoid;
           }
 
-          /* Links: keep them real anchors so the PDF keeps working links.
-             Chrome/Edge/Firefox turn these into clickable PDF annotations. */
+          .grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 6mm !important;
+            overflow: visible !important;
+            max-height: none !important;
+          }
+
+          .card {
+            box-shadow: none !important;
+          }
+
           a {
             color: inherit !important;
             text-decoration: none !important;
           }
+          @media print {
+            /* ... existing rules ... */
 
-          /* Make sure nothing relies on hover/scroll in the printed doc */
-          .grid {
-            overflow: visible !important;
-            max-height: none !important;
+            .app-footer,
+            .footer-panel {
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
           }
+
         }
       `}</style>
 
-      {/* ---- Header, exactly like PDF page 1 ---- */}
-      <header className="hero">
-        <img
-          className="hero-logo"
-          src="encodec-logo.png"
-          alt="Encodec — Tailored Engineering"
-        />
+      {/* ===================================================
+          PAGE 1
+      =================================================== */}
+      <div className="page-one">
+        {/* ---------- HERO (matches the flyer exactly) ---------- */}
+        <header className="hero">
+          {/* LEFT: badge + cream card */}
+          <div className="hero-left">
+            <div className="brand-badge">
+              <span className="brand-name">encodec</span>
+              <span className="brand-sub">Tailored Engineering</span>
+            </div>
 
-        <p className="hero-eyebrow">
-          PILOT PROGRAM &middot; JULY &ndash; DECEMBER 2026
-        </p>
-        <h1 className="hero-title">AURA REMOTE WORK</h1>
+            <div className="hero-card">
+              <h1 className="hero-title">
+                <span>Aura</span>
+                <span>Remote</span>
+                <span>Work</span>
+              </h1>
+              <p className="hero-pill">Pilot Program: July – December 2026</p>
+            </div>
+          </div>
 
-        <div className="hero-copy">
-          <p className="lede">
-            A program to enhance the English fluency and professional presence
-            it takes to work in remote international teams.
-          </p>
+          {/* RIGHT: photo + lede */}
+          <div className="hero-right">
+            <img
+              className="hero-photo"
+              src={HERO_PHOTO}
+              alt="Remote team collaborating around a laptop"
+            />
+            <p className="hero-lede">
+              A program to enhance English fluency and professional presence
+              that it takes to work in remote international teams.
+            </p>
+          </div>
+        </header>
+
+        {/* ---------- ABOUT ---------- */}
+        <section className="about-section">
           <p>
             Aura Remote Work is Encodec&rsquo;s social impact program, built for
             people who face structural barriers to the international remote job
@@ -197,33 +300,27 @@ export default function App() {
           </p>
           <p>
             This cohort brings together {trainees.length} trainees from Brazil
-            and Palestine — professionals in business, engineering, design and
-            technology — now building the language and soft skills to take that
-            experience global.
+            and Palestine &mdash; professionals in business, engineering, design
+            and technology &mdash; now building the language and soft skills to
+            take that experience global.
           </p>
-        </div>
+        </section>
 
-        <div className="hero-stats">
-          <div>
-            <strong>{trainees.length}</strong>
-            <span>TRAINEES</span>
-          </div>
-          <div>
-            <strong>6</strong>
-            <span>MONTHS</span>
-          </div>
-          <div>
-            <strong>100%</strong>
-            <span>REMOTE FORMAT</span>
-          </div>
-          <div>
-            <strong>{countryCount}</strong>
-            <span>COUNTRIES REPRESENTED</span>
-          </div>
-        </div>
-      </header>
+        {/* ---------- STATS ---------- */}
+        <section className="stats-section">
+          {stats.map((s) => (
+            <div className="stat-tile" key={s.label}>
+              <strong>{s.value}</strong>
+              <span>{s.label}</span>
+              <StatIcon name={s.icon} />
+            </div>
+          ))}
+        </section>
+      </div>
 
-      {/* ---- Manager toolbar ---- */}
+      {/* ===================================================
+          PAGE 2+ — roster
+      =================================================== */}
       <div className="toolbar no-print">
         <input
           className="search"
@@ -258,35 +355,49 @@ export default function App() {
         </button>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="empty">
-          <p>No trainees match your search.</p>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
-          >
-            Add the first one
-          </button>
-        </div>
-      ) : (
-        <div className="grid">
-          {filtered.map((t) => (
-            <TraineeCard
-              key={t.id}
-              trainee={t}
-              onEdit={openEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
+      <section className="roster">
+        <h2 className="section-title">Meet the trainees</h2>
+
+        {filtered.length === 0 ? (
+          <div className="empty">
+            <p>No trainees match your search.</p>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              Add the first one
+            </button>
+          </div>
+        ) : (
+          <div className="grid">
+            {filtered.map((t) => (
+              <TraineeCard
+                key={t.id}
+                trainee={t}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </section>
 
       <footer className="app-footer">
+        <div className="footer-panel">
+          <p className="footer-tagline">
+            Talent is everywhere; opportunity should be too.
+          </p>
+          <p className="footer-note">
+            Come meet our trainees and our team, and together we will create a
+            more connected, inclusive and promising future of work to our world.
+          </p>
+        </div>
+
         <img
-          src="tailored-engineering.png"
+          src="encodec-logo.png"
           alt="Tailored Engineering"
           className="footer-wordmark"
         />
