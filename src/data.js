@@ -26,21 +26,11 @@ export const emptyTrainee = {
   notes: "",
 };
 
-export function loadTrainees() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {
-    /* corrupted storage -> fall back to seed */
-  }
-  return seed;
-}
-
 export function saveTrainees(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
-const seed = [
+export const Data = [
   {
     id: "t1",
     name: "Abdelrahman Alhayek",
@@ -60,13 +50,13 @@ const seed = [
     experience: "",
     email: "abdhayek17@gmail.com",
     phone: "",
-    linkedin:
-      "https://www.linkedin.com/in/abdelrahman-alhayek-b80ba0129?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    linkedin: "https://www.linkedin.com/in/abdelrahmanalhayek/",
     github: "",
     portfolio: "",
-    qrLink: "https://www.linkedin.com/in/abdelrahman-alhayek-b80ba0129",
+    qrLink: "https://www.linkedin.com/in/abdelrahmanalhayek/",
     status: "training",
     notes: "",
+    photo: "abed.jpeg",
   },
 
   {
@@ -80,7 +70,7 @@ const seed = [
     shortIntro:
       "Computer Engineer and Backend Developer with 2 years of experience building web applications using PHP and Laravel. Experienced in REST APIs, database design, authentication, and business logic. Passionate about building reliable, scalable, and maintainable solutions.",
     experience: "",
-    email: "",
+    email: "mohammedshublaq2002@gmail.com",
     phone: "",
     linkedin: "https://www.linkedin.com/in/mohamed-shublaq/",
     github: "",
@@ -88,6 +78,7 @@ const seed = [
     qrLink: "https://www.linkedin.com/in/mohamed-shublaq/",
     status: "training",
     notes: "",
+    photo: "mohamed.jpeg",
   },
 
   {
@@ -108,13 +99,14 @@ const seed = [
       "A freelance full-stack developer with hands-on experience building complete websites from A to Z. Multiple projects have been designed, developed, integrated, deployed, and maintained independently. Through multiple client work, strong experience has been gained in turning ideas into reliable, practical, and scalable web solutions.",
     experience: "",
     email: "ahmed.alnono.work@gmail.com",
-    phone: "",
-    linkedin: "https://www.linkedin.com/in/ahmed-alnono-187b09251",
+    phone: "+972-59-251-1825",
+    linkedin: "https://www.linkedin.com/in/ahmed-dev-alnono/",
     github: "",
     portfolio: "",
-    qrLink: "https://www.linkedin.com/in/ahmed-alnono-187b09251",
+    qrLink: "https://www.linkedin.com/in/ahmed-dev-alnono/",
     status: "training",
     notes: "",
+    photo: "ahmed.png",
   },
 
   {
@@ -134,7 +126,7 @@ const seed = [
     shortIntro:
       "Game Developer skilled in Unity, C#, gameplay programming, version control, QA and debugging, and interactive design. Independently created a story-driven game about children's right to education in Gaza, taking it from story development and design to coding and implementation. Skilled in Adobe Illustrator and Photoshop, with strong problem-solving skills.",
     experience: "",
-    email: "",
+    email: "mervatalbhaisi@gmail.com",
     phone: "",
     linkedin: "https://www.linkedin.com/in/mervat-albhaisi",
     github: "",
@@ -163,13 +155,13 @@ const seed = [
     experience: "",
     email: "a.r.aghaalkurdi@gmail.com",
     phone: "",
-    linkedin:
-      "https://www.linkedin.com/in/ahmed-aghaalkurdi-a88311180?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    linkedin: "https://linkedin.com/in/ahmed-aghaalkurdi",
     github: "",
     portfolio: "",
-    qrLink: "https://www.linkedin.com/in/ahmed-aghaalkurdi-a88311180",
+    qrLink: "https://linkedin.com/in/ahmed-aghaalkurdi",
     status: "training",
     notes: "",
+    photo: "ahmedAgha.jpeg",
   },
 
   {
@@ -185,11 +177,12 @@ const seed = [
     experience: "",
     email: "",
     phone: "",
-    linkedin: "https://www.linkedin.com/in/leonardlima/",
+    linkedin: "https://www.linkedin.com/in/leonardlima",
     github: "",
     portfolio: "",
-    qrLink: "https://www.linkedin.com/in/leonardlima/",
+    qrLink: "https://www.linkedin.com/in/leonardlima",
     status: "training",
     notes: "",
+    photo: "leonard.jpeg",
   },
 ];

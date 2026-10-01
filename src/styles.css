@@ -324,6 +324,7 @@
   .card-actions,
   .modal-backdrop,
   .empty button,
+  .expand-btn,
   .app button {
     display: none !important;
   }
@@ -363,4 +364,17 @@
     opacity: 1;
     transform: none;
   }
+}
+.expanded-backdrop {
+  animation: fade-in 0.22s ease-out;
+}
+.expanded-panel {
+  animation: scale-in 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card,
+.expanded-panel {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--color-line) !important;
 }

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadTrainees, saveTrainees, emptyTrainee, STATUSES } from "./data.js";
+import { STATUSES, Data } from "./data.js";
 import TraineeCard from "./components/TraineeCard.jsx";
-import TraineeForm from "./components/TraineeForm.jsx";
 import useInView from "./useInView.js";
 
 /* ------------------------------------------------------------------ *
@@ -73,13 +72,9 @@ function Reveal({ children, delay = 0, className = "" }) {
 }
 
 export default function App() {
-  const [trainees, setTrainees] = useState(loadTrainees);
+  const [trainees] = useState(Data);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-
-  useEffect(() => saveTrainees(trainees), [trainees]);
 
   const [footerRef, footerInView] = useInView({ threshold: 0.2 });
 
@@ -109,42 +104,10 @@ export default function App() {
       { icon: "trainees", value: trainees.length || "—", label: "Trainees" },
       { icon: "months", value: 6, label: "Months" },
       { icon: "remote", value: "100%", label: "Remote format" },
-      {
-        icon: "countries",
-        value: 2,
-        label: "Countries represented",
-      },
+      { icon: "countries", value: 2, label: "Countries represented" },
     ],
     [trainees.length],
   );
-
-  function handleSave(data) {
-    if (editing) {
-      setTrainees((prev) =>
-        prev.map((t) => (t.id === editing.id ? { ...t, ...data } : t)),
-      );
-    } else {
-      setTrainees((prev) => [...prev, { ...data, id: crypto.randomUUID() }]);
-    }
-    setFormOpen(false);
-    setEditing(null);
-  }
-
-  function handleDelete(id) {
-    const t = trainees.find((x) => x.id === id);
-    if (
-      window.confirm(
-        `Delete ${t?.name || "this trainee"}? This cannot be undone.`,
-      )
-    ) {
-      setTrainees((prev) => prev.filter((x) => x.id !== id));
-    }
-  }
-
-  function openEdit(t) {
-    setEditing(t);
-    setFormOpen(true);
-  }
 
   function exportPdf() {
     const previousTitle = document.title;
@@ -299,15 +262,6 @@ export default function App() {
           ))}
         </select>
         <span className="flex-1" />
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setEditing(null);
-            setFormOpen(true);
-          }}
-        >
-          + Add trainee
-        </button>
         <button className="btn btn-primary" onClick={exportPdf}>
           Export PDF
         </button>
@@ -321,25 +275,12 @@ export default function App() {
         {filtered.length === 0 ? (
           <div className="empty animate-fade-in py-[72px] text-center text-ink-soft">
             <p>No trainees match your search.</p>
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setEditing(null);
-                setFormOpen(true);
-              }}
-            >
-              Add the first one
-            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:items-stretch print:grid-cols-2 print:gap-[6mm]">
             {filtered.map((t, i) => (
               <Reveal key={t.id} delay={(i % 2) * 90}>
-                <TraineeCard
-                  trainee={t}
-                  onEdit={openEdit}
-                  onDelete={handleDelete}
-                />
+                <TraineeCard trainee={t} />
               </Reveal>
             ))}
           </div>
@@ -373,18 +314,6 @@ export default function App() {
           className="h-8 w-auto flex-shrink-0 opacity-100 md:h-[38px]"
         />
       </footer>
-
-      {formOpen && (
-        <TraineeForm
-          initial={editing || emptyTrainee}
-          isEdit={!!editing}
-          onSave={handleSave}
-          onClose={() => {
-            setFormOpen(false);
-            setEditing(null);
-          }}
-        />
-      )}
     </div>
   );
 }
