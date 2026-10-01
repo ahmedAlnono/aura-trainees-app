@@ -36,7 +36,7 @@ export const Data = [
     name: "Abdelrahman Alhayek",
     from: "Palestine",
     livingIn: "Spain",
-    englishLevel: "B2",
+    englishLevel: "C1",
     communication: 7,
     skills: [
       "Business Operations",
@@ -64,7 +64,7 @@ export const Data = [
     name: "Mohamed Shublaq",
     from: "Palestine / Egypt",
     livingIn: "",
-    englishLevel: "B2",
+    englishLevel: "C1",
     communication: 7,
     skills: ["PHP", "JavaScript", "Backend Development", "REST APIs", "MySQL"],
     shortIntro:
@@ -86,7 +86,7 @@ export const Data = [
     name: "Ahmed Alnono",
     from: "Palestine",
     livingIn: "Gaza",
-    englishLevel: "B1",
+    englishLevel: "C1",
     communication: 6,
     skills: [
       "Full-Stack Web Development",
@@ -114,7 +114,7 @@ export const Data = [
     name: "Mervat AlBhaisi",
     from: "Palestine",
     livingIn: "",
-    englishLevel: "B1",
+    englishLevel: "B2",
     communication: 6,
     skills: [
       "C# Programming",
@@ -141,7 +141,7 @@ export const Data = [
     name: "Ahmed Aghaalkurdi",
     from: "Palestine",
     livingIn: "Spain",
-    englishLevel: "B2",
+    englishLevel: "C2",
     communication: 7,
     skills: [
       "SQL",
@@ -169,7 +169,7 @@ export const Data = [
     name: "Leonard de Lima",
     from: "São Paulo, Brazil",
     livingIn: "São Paulo, Brazil",
-    englishLevel: "B1",
+    englishLevel: "C1",
     communication: 6,
     skills: ["Graphic Design", "UI/UX Design", "Video Editing"],
     shortIntro:
