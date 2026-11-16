@@ -93,6 +93,7 @@ function ContactLinks({ t, size = "sm" }) {
  * Full-screen expanded view
  * ------------------------------------------------------------------ */
 export function ExpandedCard({ t, onClose }) {
+  console.log(t);
   return createPortal(
     <div
       className="expanded-backdrop fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(61,48,39,0.55)] p-4 backdrop-blur-sm sm:p-6"

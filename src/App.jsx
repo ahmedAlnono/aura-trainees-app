@@ -125,6 +125,7 @@ export default function App() {
         t.experience,
         t.email,
         ...(t.skills || []),
+        t.photo,
       ]
         .join(" ")
         .toLowerCase();
