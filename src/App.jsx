@@ -79,7 +79,7 @@ function Reveal({ children, delay = 0, className = "" }) {
 
 export default function App() {
   const [trainees, setTrainees] = useState(loadTrainees);
-
+  const [view, setView] = useState("cards"); // "cards" | "stagger"
   useEffect(() => {
     saveTrainees(trainees);
   }, [trainees]);
@@ -99,8 +99,6 @@ export default function App() {
     a.click();
     URL.revokeObjectURL(url);
   }
-
-
 
   function resetData() {
     if (confirm("Discard all edits and restore the original data?")) {
@@ -306,6 +304,25 @@ export default function App() {
         <button className="btn btn-primary" onClick={exportPdf}>
           Export PDF
         </button>
+        <div className="flex overflow-hidden rounded-full border-[1.5px] border-line bg-card text-sm font-semibold">
+          {[
+            { value: "cards", label: "Cards" },
+            { value: "stagger", label: "Stagger" },
+          ].map((v) => (
+            <button
+              key={v.value}
+              type="button"
+              onClick={() => setView(v.value)}
+              className={`px-4 py-2.5 transition-colors ${
+                view === v.value
+                  ? "bg-gold-deep text-white"
+                  : "text-ink hover:bg-cream-2"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <section className="roster mt-2">
@@ -313,26 +330,34 @@ export default function App() {
           Meet the trainees
         </h2>
 
-        {filtered.length === 0 ? (
-          <div className="empty animate-fade-in py-[72px] text-center text-ink-soft">
-            <p>No trainees match your search.</p>
-          </div>
-        ) : (
-          <>
+        <>
+          {view === "stagger" && (
             <div className="print:hidden">
               <Reveal>
                 <TraineeStagger trainees={filtered} onEdit={updateTrainee} />
               </Reveal>
             </div>
+          )}
 
-            {/* print/PDF: static grid so everyone is included */}
-            <div className="hidden print:grid print:grid-cols-2 print:gap-[6mm]">
-              {filtered.map((t) => (
+          {/* original card grid: always on screen in "cards" view, print-only in "stagger" view */}
+          <div
+            className={
+              view === "stagger"
+                ? "hidden print:grid print:grid-cols-2 print:gap-[6mm]"
+                : "grid grid-cols-1 gap-5 md:grid-cols-2 md:items-stretch print:grid-cols-2 print:gap-[6mm]"
+            }
+          >
+            {filtered.map((t, i) =>
+              view === "cards" ? (
+                <Reveal key={t.id} delay={(i % 2) * 90}>
+                  <TraineeCard trainee={t} onEdit={updateTrainee} />
+                </Reveal>
+              ) : (
                 <TraineeCard key={t.id} trainee={t} />
-              ))}
-            </div>
-          </>
-        )}
+              ),
+            )}
+          </div>
+        </>
       </section>
 
       {/* ===================================================
