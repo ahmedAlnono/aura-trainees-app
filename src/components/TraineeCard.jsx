@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { STATUSES } from "../data.js";
+import TraineeEditor from "./TraineeEditor.jsx";
 
 function getStatusColor(status) {
   const colors = {
@@ -91,7 +92,7 @@ function ContactLinks({ t, size = "sm" }) {
 /* ------------------------------------------------------------------ *
  * Full-screen expanded view
  * ------------------------------------------------------------------ */
-function ExpandedCard({ t, onClose }) {
+export function ExpandedCard({ t, onClose }) {
   return createPortal(
     <div
       className="expanded-backdrop fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(61,48,39,0.55)] p-4 backdrop-blur-sm sm:p-6"
@@ -260,6 +261,7 @@ function ExpandedCard({ t, onClose }) {
  * TraineeCard
  * ------------------------------------------------------------------ */
 export default function TraineeCard({ trainee: t, onEdit, onDelete }) {
+  const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -275,6 +277,15 @@ export default function TraineeCard({ trainee: t, onEdit, onDelete }) {
         >
           <ExpandIcon className="h-4 w-4" />
         </button>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="no-print absolute top-3 right-12 z-10 flex h-8 items-center justify-center rounded-full border border-line bg-card/80 px-3 text-[11px] font-semibold text-ink-soft opacity-70 backdrop-blur-sm transition-all duration-200 hover:border-gold hover:bg-gold hover:text-white hover:opacity-100"
+          >
+            Edit
+          </button>
+        )}
 
         {/* ---------- Header: Avatar, Identity & QR ---------- */}
         <div className="border-b border-line/30 p-5 pb-4">
@@ -402,7 +413,13 @@ export default function TraineeCard({ trainee: t, onEdit, onDelete }) {
           <ContactLinks t={t} />
         </div>
       </article>
-
+      {editing && (
+        <TraineeEditor
+          trainee={t}
+          onSave={onEdit}
+          onClose={() => setEditing(false)}
+        />
+      )}
       {expanded && <ExpandedCard t={t} onClose={() => setExpanded(false)} />}
     </>
   );

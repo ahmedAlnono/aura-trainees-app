@@ -186,3 +186,20 @@ export const Data = [
     photo: "leonard.jpeg",
   },
 ];
+
+export function loadTrainees() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {
+    /* fall through to defaults */
+  }
+  return Data;
+}
+
+export function clearSavedTrainees() {
+  localStorage.removeItem(STORAGE_KEY);
+}

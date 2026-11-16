@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { STATUSES, Data } from "./data.js";
+import {
+  STATUSES,
+  Data,
+  loadTrainees,
+  saveTrainees,
+  clearSavedTrainees,
+} from "./data.js";
 import TraineeCard from "./components/TraineeCard.jsx";
 import useInView from "./useInView.js";
-
+import TraineeStagger from "./components/TraineeStager.jsx";
 /* ------------------------------------------------------------------ *
  * Stat tile watermarks
  * ------------------------------------------------------------------ */
@@ -72,7 +78,36 @@ function Reveal({ children, delay = 0, className = "" }) {
 }
 
 export default function App() {
-  const [trainees] = useState(Data);
+  const [trainees, setTrainees] = useState(loadTrainees);
+
+  useEffect(() => {
+    saveTrainees(trainees);
+  }, [trainees]);
+
+  function updateTrainee(updated) {
+    setTrainees((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+  }
+
+  function exportJson() {
+    const blob = new Blob([JSON.stringify(trainees, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `aura-trainees-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+
+
+  function resetData() {
+    if (confirm("Discard all edits and restore the original data?")) {
+      clearSavedTrainees();
+      setTrainees(Data);
+    }
+  }
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -262,6 +297,12 @@ export default function App() {
           ))}
         </select>
         <span className="flex-1" />
+        <button className="btn" onClick={resetData}>
+          Reset
+        </button>
+        <button className="btn" onClick={exportJson}>
+          Export JSON
+        </button>
         <button className="btn btn-primary" onClick={exportPdf}>
           Export PDF
         </button>
@@ -277,13 +318,20 @@ export default function App() {
             <p>No trainees match your search.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:items-stretch print:grid-cols-2 print:gap-[6mm]">
-            {filtered.map((t, i) => (
-              <Reveal key={t.id} delay={(i % 2) * 90}>
-                <TraineeCard trainee={t} />
+          <>
+            <div className="print:hidden">
+              <Reveal>
+                <TraineeStagger trainees={filtered} onEdit={updateTrainee} />
               </Reveal>
-            ))}
-          </div>
+            </div>
+
+            {/* print/PDF: static grid so everyone is included */}
+            <div className="hidden print:grid print:grid-cols-2 print:gap-[6mm]">
+              {filtered.map((t) => (
+                <TraineeCard key={t.id} trainee={t} />
+              ))}
+            </div>
+          </>
         )}
       </section>
 
